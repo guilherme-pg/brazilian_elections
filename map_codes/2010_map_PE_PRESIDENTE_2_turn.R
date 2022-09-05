@@ -1,4 +1,4 @@
-# votes distribution in PERNAMBUCO by candidate in 2 turn of 2018
+# votes distribution in PERNAMBUCO by candidate in 2 turn of 2010
 
 setwd("C:/Users/guima/Desktop/Data Science/Projetos/de_pe_na_eleicao/pe_distribuicao")
 
@@ -9,20 +9,21 @@ library(stringr)
 library(cowplot)
 
 # LOADING MAP
-MAPA=st_read("2018_26MUE250GC_SIR.shp")
+MAPA=st_read("2010_26MUE250GC_SIR.shp", options= "ENCODING=WINDOWS-1252")
 
 # ELECTION DATASET
-df_2018_pr <- read.table("../general_election_data/votacao_secao_2018_BR.csv", header=TRUE, sep=";")
+df_2010_pr <- read.table("../general_election_data/votacao_secao_2010_BR.csv", header=TRUE, sep=";")
 
 
 
 
-#FILTER BY ELECTIONS 2 TURN
-df_2018_pr_2_t <- filter(df_2018_pr, NR_TURNO==2 & SG_UF=="PE")
+# FILTER BY ELECTIONS 2 TURN
+df_2010_pr_2_t <- filter(df_2010_pr, NR_TURNO==2 & SG_UF=="PE")
 
-df_pr_2 <- df_2018_pr_2_t %>%
+df_pr_2 <- df_2010_pr_2_t %>%
   group_by(NM_MUNICIPIO, NM_VOTAVEL, CD_MUNICIPIO) %>%
   summarise(QT_VOTOS = sum(QT_VOTOS))
+
 
 
 
@@ -47,6 +48,12 @@ df_pr_2$NM_MUNICIPIO <- gsub(" Dos ", " dos ", df_pr_2$NM_MUNICIPIO)
 df_pr_2$NM_MUNICIPIO <- gsub(" Das ", " das ", df_pr_2$NM_MUNICIPIO)
 
 
+# CORRECTIONS: CITY NAMES
+df_pr_2$NM_MUNICIPIO[df_pr_2$NM_MUNICIPIO == "Belém de São Francisco"] <- "Belém do São Francisco"
+df_pr_2$NM_MUNICIPIO[df_pr_2$NM_MUNICIPIO == "São Vicente Ferrér"] <- "São Vicente Férrer"
+MAPA$NM_MUNICIP[MAPA$NM_MUNICIP == "São Vicente Ferrer"] <- "São Vicente Férrer"
+
+
 
 # GROUP VOTES BY MUNICIPALITY
 total_votos_mun <- df_pr_2 %>%
@@ -67,6 +74,8 @@ df_pr_2$PERCENT_FORMAT <- paste0(sprintf("%4.2f", df_pr_2$PERCENT), "%")
 
 # ADD MUNICIPALY GEOMETRY
 df_pr_2$GEOMETRY <- MAPA$geometry[ match(df_pr_2$NM_MUNICIPIO, MAPA$NM_MUNICIP) ]
+
+
 
 
 
@@ -100,12 +109,6 @@ votos_validos <- filter(df_votos_validos, PERCENT > 50)
 
 
 
-
-# VETOR OF COLOR CLASSIFICATION BY DIFFERENCE OF WINNING CANDIDATE BY MUNICIPALITY
-coresVotos <- c("Fernando Haddad"="red", 
-                "Jair Messias Bolsonaro"="blue")
-
-
 # DISTINGUISH AND IDENTIFY BY COLOR THE GRADES OF THE CANDIDATES PERCENTS
 coloresBlueRed <- c(
   "#003467",
@@ -120,18 +123,18 @@ coloresBlueRed <- c(
   "#9c0c0c",
   "#6a0000"
 )
-
 breaks <- c(0, 20, 30, 40, 50, 60, 70, 80, 100)
 
-
+# VETOR OF COLOR CLASSIFICATION BY DIFFERENCE OF WINNING CANDIDATE BY MUNICIPALITY
+coresVotos <- c("Dilma Vana Rousseff"="red", 
+                "José Serra"="blue")
 
 
 
 # TRANSFORM THE VALUES OF A VARIABLE (INVERTING) TO DISTINGUISH BY OPPOSITE COLORS
 # APPLY THE TRANSFORMATION BY COLUMN ACCORDING CONDITION
 votos_validos <- votos_validos %>%
-  mutate(PERCENT_TRANSF = abs(case_when(NM_VOTAVEL=="Jair Messias Bolsonaro" ~ PERCENT-100, NM_VOTAVEL=="Fernando Haddad" ~ PERCENT)))
-
+  mutate(PERCENT_TRANSF = abs(case_when(NM_VOTAVEL=="José Serra" ~ PERCENT-100, NM_VOTAVEL=="Dilma Vana Rousseff" ~ PERCENT)))
 
 
 
@@ -158,18 +161,18 @@ main_pe <- votos_validos %>%
     legend.margin = margin(t=30)
   ) +
   labs(
-    title = "2º Turno das Eleições 2018 em Pernambuco",
+    title = "2º Turno das Eleições 2010 em Pernambuco",
     subtitle = "Desempenho dos candidados por município em porcentagem") +
   scale_fill_gradientn( colors= coloresBlueRed, 
                         limits=c(0, 100),
                         breaks=c(0, 25, 50, 75, 100),
-                        labels=c("100%", "Jair Bolsonaro", "50%", "Fernando Haddad", "100%")
+                        labels=c("100%", "José Serra", "50%", "Dilma Rousseff", "100%")
   ) +
   guides(fill = guide_colourbar(ticks = FALSE, 
                                 title.position = "bottom")
   ) +
   lims(
-        y=c(-10, -7)
+    y=c(-10, -7)
   )
 
 
@@ -202,12 +205,10 @@ ggdraw() +
             y = .6
   )
 
+
+
 # SAVE THE PLOT IMAGE
-ggsave("map_PE_2018_PRESIDENTE_2_turn_05.jpg")
-
-
-
-
+ggsave("map_PE_2010_PRESIDENTE_2_turn_07.jpg")
 
 
 
@@ -232,4 +233,16 @@ main_mg <- votos_validos %>%
        title = "2º Turno das Eleições 2018 em MG",
        subtitle = "Distribuição de Candidatos com maioria de votos por município"
   )
+
+
+
+
+
+
+
+
+
+
+
+
 

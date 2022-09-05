@@ -5,9 +5,11 @@ setwd("C:/Users/guima/Desktop/Data Science/Projetos/de_pe_na_eleicao/pe_distribu
 library(dplyr)
 library(ggplot2)
 library(sf)
+library(stringr)
+library(cowplot)
 
 # LOADING MAP
-MAPA=st_read("26MUE250GC_SIR.shp")
+MAPA=st_read("2014_26MUE250GC_SIR.shp")
 
 # ELECTION DATASET
 df_2014_pr <- read.table("../general_election_data/votacao_secao_2014_BR.csv", header=TRUE, sep=";")
@@ -26,7 +28,6 @@ df_pr_2 <- df_2014_pr_2_t %>%
 
 
 # ADEQUATE COLUMNS WITH MUNICIPALITY NAMES - TITLE CASE
-library(stringr)
 MAPA$NM_MUNICIP <- str_to_title(MAPA$NM_MUNICIP)
 
 MAPA$NM_MUNICIP <- gsub(" E ", " e ", MAPA$NM_MUNICIP)
@@ -46,6 +47,10 @@ df_pr_2$NM_MUNICIPIO <- gsub(" Do ", " do ", df_pr_2$NM_MUNICIPIO)
 df_pr_2$NM_MUNICIPIO <- gsub(" Dos ", " dos ", df_pr_2$NM_MUNICIPIO)
 df_pr_2$NM_MUNICIPIO <- gsub(" Das ", " das ", df_pr_2$NM_MUNICIPIO)
 
+
+# CORRECTIONS: CITY NAMES
+#df_pr_2$NM_MUNICIPIO[df_pr_2$NM_MUNICIPIO == "São Vicente Ferrér"] <- "São Vicente Férrer"
+MAPA$NM_MUNICIP[MAPA$NM_MUNICIP == "São Vicente Ferrer"] <- "São Vicente Férrer"
 
 
 # GROUP VOTES BY MUNICIPALITY
@@ -107,18 +112,18 @@ votos_validos <- filter(df_votos_validos, PERCENT > 50)
 
 
 # DISTINGUISH AND IDENTIFY BY COLOR THE GRADES OF THE CANDIDATES PERCENTS
-coresProporcap <- c(
-  "#000082",
-  "#2020a1",
-  "#3f3fc0",
-  "#5f5fdf",
-  "#7e7efe",
+coloresBlueRed <- c(
+  "#003467",
+  "#0c539c",
+  "#1176e0",
+  "#4392e9",
+  "#82c1ff",
   "grey91",
-  "#fe7f7f",
-  "#df5f5f",
-  "#c04040",
-  "#a12020",
-  "#820000"
+  "#ff8282",
+  "#e94343",
+  "#e01111",
+  "#9c0c0c",
+  "#6a0000"
 )
 breaks <- c(0, 20, 30, 40, 50, 60, 70, 80, 100)
 
@@ -144,7 +149,7 @@ main_pe <- votos_validos %>%
   theme_void() +
   theme(
     plot.background = element_rect(fill="lightgoldenrodyellow", color=NA),
-    plot.margin = margin(l=100, t=80, r=100, b=80),
+    plot.margin = margin(l=70, t=70, r=70, b=70),
     plot.title = element_text(hjust=.5, vjust = 10),
     plot.subtitle = element_text(hjust=.5, vjust = 13),
     panel.border = element_rect(colour = "lightgoldenrodyellow", fill=NA),
@@ -152,18 +157,21 @@ main_pe <- votos_validos %>%
     legend.title = element_blank(),
     legend.key.width = unit(2, "cm"),
     legend.background = element_blank(),
-    legend.margin = margin(t=10)
+    legend.margin = margin(t=30)
   ) +
   labs(
     title = "2º Turno das Eleições 2014 em Pernambuco",
     subtitle = "Desempenho dos candidados por município em porcentagem") +
-  scale_fill_gradientn( colors= coresProporcap, 
+  scale_fill_gradientn( colors= coloresBlueRed, 
                         limits=c(0, 100),
                         breaks=c(0, 25, 50, 75, 100),
                         labels=c("100%", "Aécio Neves", "50%", "Dilma Rousseff", "100%")
   ) +
   guides(fill = guide_colourbar(ticks = FALSE, 
                                 title.position = "bottom")
+  ) +
+  lims(
+    y=c(-10, -7)
   )
 
 
@@ -178,10 +186,8 @@ re_fn <- votos_validos %>%
     panel.border = element_rect(colour = "grey75", fill=NA),
     legend.position = "none"
   ) +
-  scale_fill_gradientn( colors= coresProporcap, 
-                        limits=c(0, 100),
-                        breaks=c(0, 25, 50, 75, 100),
-                        labels=c("100%", "Aécio Neves", "50%", "Dilma Rousseff", "100%")
+  scale_fill_gradientn( colors= coloresBlueRed, 
+                        limits=c(0, 100)
   ) +
   lims( x=c(-32.50, -32.35),
         y=c(-3.90, -3.78)
@@ -194,14 +200,14 @@ ggdraw() +
   draw_plot(re_fn,
             scale = .2,
             height = .35,
-            x = .37,
-            y = .57
+            x = .35,
+            y = .6
   )
 
 
 
 # SAVE THE PLOT IMAGE
-ggsave("map_PE_2014_PRESIDENTE_2_turn.jpg")
+ggsave("map_PE_2014_PRESIDENTE_2_turn_06.jpg")
 
 
 
