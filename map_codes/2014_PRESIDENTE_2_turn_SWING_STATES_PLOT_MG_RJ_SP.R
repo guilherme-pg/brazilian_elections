@@ -1,5 +1,14 @@
 # BRAZILIAN SWING STATES (MG, RJ and SP) ELECTION 2014, turn 2 for president
 
+
+# 2014 presidential vote database
+#  https://dadosabertos.tse.jus.br/dataset/resultados-2014/resource/28aad28a-e658-4e80-ae4f-30bebbcf6bbd
+
+# maps dataset organizacao_do_territorio > malhas_territoriais > malhas_municipais >
+# municipios_2014 > UFs > MG, RJ and SP > mg_municipios, rj_municipios and sp_municipios
+# https://www.ibge.gov.br/geociencias/downloads-geociencias.html
+
+
 # SET FOLDER
 setwd("C:/Users/guima/Desktop/Data Science/Projetos/de_pe_na_eleicao/brazilian_swing_states")
 
@@ -7,6 +16,7 @@ library(dplyr)
 library(ggplot2)
 library(stringr)
 library(sf)
+
 
 # LOADING DATASETS
 
@@ -163,7 +173,7 @@ votos_validos %>%
     legend.background = element_blank(),
   ) +
   labs(
-    title = "Votos Válidos no 2º Turno das Eleições 2014 em MG, RJ e SP",
+    title = "Votos Válidos no 2º Turno das Eleições para Presidente de 2014 em MG, RJ e SP",
     subtitle = "Desempenho dos candidados por município em porcentagem") +
   scale_fill_gradientn( colors= coloresBlueRed, 
                         limits=c(0, 100),
@@ -177,4 +187,4 @@ votos_validos %>%
 
 
 # save plot
-ggsave("2014_map_MG_RJ_SP_PRESIDENT_2_turn.jpg", width = 10, height = 10)
+ggsave("2014_map_MG_RJ_SP_PRESIDENT_2_turn.jpg", width = 9, height = 7)

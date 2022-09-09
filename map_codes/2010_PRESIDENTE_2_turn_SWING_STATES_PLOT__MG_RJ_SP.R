@@ -1,5 +1,14 @@
 # BRAZILIAN SWING STATES (MG, RJ and SP) ELECTION 2010, turn 2 for president
 
+
+# 2010 presidential vote database
+# https://dadosabertos.tse.jus.br/dataset/resultados-2010/resource/31868b3b-aa7f-4f78-abd3-8d7a183d0a81
+
+# maps dataset organizacao_do_territorio > malhas_territoriais > malhas_municipais >
+# municipios_2010 > UFs > MG, RJ and SP > mg_municipios, rj_municipios and sp_municipios
+# https://www.ibge.gov.br/geociencias/downloads-geociencias.html
+
+
 # SET FOLDER
 setwd("C:/Users/guima/Desktop/Data Science/Projetos/de_pe_na_eleicao/brazilian_swing_states")
 
@@ -165,10 +174,9 @@ votos_validos %>%
     legend.text = element_text(colour = "white"),
     legend.key.width = unit(2, "cm"),
     legend.background = element_blank(),
-    #legend.margin = margin(t=30)
   ) +
   labs(
-    title = "Votos Válidos no 2º Turno das Eleições 2010 em MG, RJ e SP",
+    title = "Votos Válidos no 2º Turno das Eleições para Presidente de 2010 em MG, RJ e SP",
     subtitle = "Desempenho dos candidados por município em porcentagem") +
   scale_fill_gradientn( colors= coloresBlueRed, 
                         limits=c(0, 100),
@@ -182,4 +190,4 @@ votos_validos %>%
 
 
 # save plot
-ggsave("2010_map_MG_RJ_SP_PRESIDENT_2_turn.jpg", width = 10, height = 10)
+ggsave("2010_map_MG_RJ_SP_PRESIDENT_2_turn.jpg", width = 9, height = 7)

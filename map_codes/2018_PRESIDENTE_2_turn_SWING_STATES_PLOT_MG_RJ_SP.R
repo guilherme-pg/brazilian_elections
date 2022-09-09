@@ -1,5 +1,14 @@
 # # BRAZILIAN SWING STATES (MG, RJ and SP) ELECTION 2018, turn 2 for president
 
+
+# 2018 presidential vote database
+#https://dadosabertos.tse.jus.br/dataset/resultados-2018/resource/f6feee37-4913-4d83-b73b-dc25ba51e2e6
+
+# maps dataset organizacao_do_territorio > malhas_territoriais > malhas_municipais >
+# municipios_2018 > UFs > MG, RJ and SP > mg_municipios, rj_municipios and sp_municipios
+# https://www.ibge.gov.br/geociencias/downloads-geociencias.html
+
+
 # SET FOLDER
 setwd("C:/Users/guima/Desktop/Data Science/Projetos/de_pe_na_eleicao/brazilian_swing_states")
 
@@ -63,9 +72,9 @@ votos_pr_2$PERCENT_FORMAT <- paste0(sprintf("%4.2f", votos_pr_2$PERCENT), "%")
 
 
 # MUNICIPALITIES NAMES CORRECTIONS
-votos_pr_2$NM_MUNICIPIO <- gsub(" D ", "-D'", votos_pr_2$NM_MUNICIPIO)
 votos_pr_2$NM_MUNICIPIO <- gsub(" D O", " D'O", votos_pr_2$NM_MUNICIPIO)
 votos_pr_2$NM_MUNICIPIO <- gsub("PAU D ALHO", "PAU-D'ALHO", votos_pr_2$NM_MUNICIPIO)
+votos_pr_2$NM_MUNICIPIO <- gsub(" D ", "-D'", votos_pr_2$NM_MUNICIPIO)
 votos_pr_2$NM_MUNICIPIO <- gsub("SÃO LUÍS DO PARAITINGA", "SÃO LUIZ DO PARAITINGA", votos_pr_2$NM_MUNICIPIO)
 votos_pr_2$NM_MUNICIPIO <- gsub("SEM PEIXE", "SEM-PEIXE", votos_pr_2$NM_MUNICIPIO)
 
@@ -158,10 +167,9 @@ votos_validos %>%
     legend.text = element_text(colour = "white"),
     legend.key.width = unit(2, "cm"),
     legend.background = element_blank(),
-    #legend.margin = margin(t=30)
   ) +
   labs(
-    title = "Votos Válidos no 2º Turno das Eleições 2018 em MG, RJ e SP",
+    title = "Votos Válidos no 2º Turno das Eleições para Presidente de 2018 em MG, RJ e SP",
     subtitle = "Desempenho dos candidados por município em porcentagem") +
   scale_fill_gradientn( colors= coloresBlueRed, 
                         limits=c(0, 100),
@@ -175,7 +183,7 @@ votos_validos %>%
 
 
 # save plot
-ggsave("2018_map_MG_RJ_SP_PRESIDENT_2_turn.jpg", width = 10, height = 10)
+ggsave("2018_map_MG_RJ_SP_PRESIDENT_2_turn.jpg", width = 9, height = 7)
 
 
 
