@@ -1,7 +1,7 @@
-# Brazilian Northeast 2010, 2014 e 2018 elections PRESIDENT 2 turn
+# Brazilian Northeast 2014 elections PRESIDENT 2 turn
 
 
-# DATASET of 2018 elections
+# DATASET of 2014 elections
 # 
 
 # DATASET of 2014 elections
@@ -15,9 +15,10 @@ setwd("C:/Users/guima/Desktop/Data Science/Projetos/de_pe_na_eleicao/codes_and_p
 
 
 #FILTER BY ELECTIONS 2 TURN
-#votos_estados <- filter(votos_2018, NR_TURNO==2 & SG_UF %in% c("AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"))
-#write.csv(votos_estados, "df_ne_2018_president_2_turn.csv", row.names = FALSE)
-#votos_2018_pr_2_t <- rbind(votos_mg, votos_rj, votos_sp)
+#votos_2014 <- read.table("../../../general_election_data/votacao_secao_2014_BR.csv", sep=";", header=TRUE)
+#votos_estados <- filter(votos_2014, NR_TURNO==2 & SG_UF %in% c("AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"))
+#write.csv(votos_estados, "df_ne_2014_president_2_turn.csv", row.names = FALSE)
+
 
 
 library(dplyr)
@@ -29,18 +30,18 @@ library(sf)
 # LOADING DATASETS
 
 # VOTES
-votos_NE <- read.table("../../../general_election_data/df_ne_2018_president_2_turn.csv", header=TRUE, sep=",")
+votos_NE <- read.table("../../../general_election_data/df_ne_2014_president_2_turn.csv", header=TRUE, sep=",")
 
 # NE MAPS
-MAPA_AL <- st_read("../../../maps/NE_AL_2018_27MUE250GC_SIR.shp")
-MAPA_BA <- st_read("../../../maps/NE_BA_2018_29MUE250GC_SIR.shp")
-MAPA_CE <- st_read("../../../maps/NE_CE_2018_23MUE250GC_SIR.shp")
-MAPA_MA <- st_read("../../../maps/NE_MA_2018_21MUE250GC_SIR.shp")
-MAPA_PB <- st_read("../../../maps/NE_PB_2018_25MUE250GC_SIR.shp")
-MAPA_PE <- st_read("../../../maps/NE_PE_2018_26MUE250GC_SIR.shp")
-MAPA_PI <- st_read("../../../maps/NE_PI_2018_22MUE250GC_SIR.shp")
-MAPA_RN <- st_read("../../../maps/NE_RN_2018_24MUE250GC_SIR.shp")
-MAPA_SE <- st_read("../../../maps/NE_SE_2018_28MUE250GC_SIR.shp")
+MAPA_AL <- st_read("../../../maps/NE_AL_2014_27MUE250GC_SIR.shp")
+MAPA_BA <- st_read("../../../maps/NE_BA_2014_29MUE250GC_SIR.shp")
+MAPA_CE <- st_read("../../../maps/NE_CE_2014_23MUE250GC_SIR.shp")
+MAPA_MA <- st_read("../../../maps/NE_MA_2014_21MUE250GC_SIR.shp")
+MAPA_PB <- st_read("../../../maps/NE_PB_2014_25MUE250GC_SIR.shp")
+MAPA_PE <- st_read("../../../maps/NE_PE_2014_26MUE250GC_SIR.shp")
+MAPA_PI <- st_read("../../../maps/NE_PI_2014_22MUE250GC_SIR.shp")
+MAPA_RN <- st_read("../../../maps/NE_RN_2014_24MUE250GC_SIR.shp")
+MAPA_SE <- st_read("../../../maps/NE_SE_2014_28MUE250GC_SIR.shp")
 
 
 
@@ -55,7 +56,7 @@ MAPA_PI$SG_UF <- "PI"
 MAPA_RN$SG_UF <- "RN"
 MAPA_SE$SG_UF <- "SE"
 
-  
+
 
 
 votos_pr_2 <- votos_NE %>%
@@ -82,6 +83,7 @@ votos_pr_2$PERCENT <- votos_pr_2$PROPORCAO *100
 votos_pr_2$PERCENT_FORMAT <- paste0(sprintf("%4.2f", votos_pr_2$PERCENT), "%")
 
 
+
 # MUNICIPALITIES NAMES CORRECTIONS
 votos_pr_2$NM_MUNICIPIO <- gsub("-D'", " D'", votos_pr_2$NM_MUNICIPIO)
 votos_pr_2$NM_MUNICIPIO <- gsub("CAEM", "CAÉM", votos_pr_2$NM_MUNICIPIO)
@@ -89,13 +91,22 @@ votos_pr_2$NM_MUNICIPIO <- gsub("QUINJINGUE", "QUIJINGUE", votos_pr_2$NM_MUNICIP
 votos_pr_2$NM_MUNICIPIO <- gsub("SANTO ESTEVÃO", "SANTO ESTÊVÃO", votos_pr_2$NM_MUNICIPIO)
 votos_pr_2$NM_MUNICIPIO <- gsub("LUIS CORREIA", "LUÍS CORREIA", votos_pr_2$NM_MUNICIPIO)
 votos_pr_2$NM_MUNICIPIO <- gsub(" D ", " D'", votos_pr_2$NM_MUNICIPIO)
+votos_pr_2$NM_MUNICIPIO <- gsub("IUIU", "IUIÚ", votos_pr_2$NM_MUNICIPIO)
+votos_pr_2$NM_MUNICIPIO <- gsub("OLHO D'ÁGUA DO BORGES", "OLHO-D'ÁGUA DO BORGES", votos_pr_2$NM_MUNICIPIO)
 
+
+MAPA_BA$NM_MUNICIP <- gsub("SANTA TERESINHA", "SANTA TEREZINHA", MAPA_BA$NM_MUNICIP)
+MAPA_BA$NM_MUNICIP <- gsub("MUQUÉM DE SÃO FRANCISCO", "MUQUÉM DO SÃO FRANCISCO", MAPA_BA$NM_MUNICIP)
+MAPA_BA$NM_MUNICIP <- gsub("ARAÇAS", "ARAÇÁS", MAPA_BA$NM_MUNICIP)
 MAPA_BA$NM_MUNICIP <- gsub("CAMACAN", "CAMACÃ", MAPA_BA$NM_MUNICIP)
 MAPA_RN$NM_MUNICIP <- gsub("AÇU", "ASSÚ", MAPA_RN$NM_MUNICIP)
+MAPA_RN$NM_MUNICIP <- gsub("ARÊS", "AREZ", MAPA_RN$NM_MUNICIP)
 MAPA_RN$NM_MUNICIP <- gsub("IPANGUASSÚ", "IPANGUAÇU", MAPA_RN$NM_MUNICIP)
 MAPA_RN$NM_MUNICIP <- gsub("JANUÁRIO CICCO", "BOA SAÚDE", MAPA_RN$NM_MUNICIP)
 MAPA_RN$NM_MUNICIP <- gsub("AUGUSTO SEVERO", "CAMPO GRANDE", MAPA_RN$NM_MUNICIP)
 MAPA_SE$NM_MUNICIP <- gsub("GRACHO CARDOSO", "GRACCHO CARDOSO", MAPA_SE$NM_MUNICIP)
+MAPA_PE$NM_MUNICIP <- gsub("SÃO VICENTE FERRER", "SÃO VICENTE FÉRRER", MAPA_PE$NM_MUNICIP)
+MAPA_CE$NM_MUNICIP <- gsub("ERERÊ", "ERERÉ", MAPA_CE$NM_MUNICIP)
 
 
 MAPAS <- rbind(MAPA_AL, MAPA_BA, MAPA_CE, MAPA_MA, 
@@ -145,7 +156,7 @@ votos_validos <- filter(df_votos_validos, PERCENT > 50)
 # TRANSFORM THE VALUES OF A VARIABLE (INVERTING) TO DISTINGUISH BY OPPOSITE COLORS
 # APPLY THE TRANSFORMATION BY COLUMN ACCORDING CONDITION
 votos_validos <- votos_validos %>%
-  mutate(PERCENT_TRANSF = abs(case_when(NM_VOTAVEL=="JAIR MESSIAS BOLSONARO" ~ PERCENT-100, NM_VOTAVEL=="FERNANDO HADDAD" ~ PERCENT)))
+  mutate(PERCENT_TRANSF = abs(case_when(NM_VOTAVEL=="AÉCIO NEVES DA CUNHA" ~ PERCENT-100, NM_VOTAVEL=="DILMA VANA ROUSSEFF" ~ PERCENT)))
 
 
 
@@ -189,17 +200,17 @@ votos_validos %>%
     legend.background = element_blank(),
   ) +
   labs(
-    title = "Votos Válidos no 2º Turno das Eleições para Presidente de 2018 no Nordeste",
+    title = "Votos Válidos no 2º Turno das Eleições para Presidente de 2014 no Nordeste",
     subtitle = "Desempenho dos candidados por município em porcentagem") +
   scale_fill_gradientn( colors= coloresBlueRed, 
                         limits=c(0, 100),
                         breaks=c(0, 25, 50, 75, 100),
-                        labels=c("100%", "Jair Bolsonaro", "50%", "Fernando Haddad", "100%")
+                        labels=c("100%", "Aécio Neves", "50%", "Dilma Rousseff", "100%")
   ) +
   guides(fill = guide_colourbar(ticks = FALSE, 
                                 title.position = "bottom")
   )
 
 
-ggsave("map_president_2_turn_2018_ne.jpg")
+ggsave("map_president_2_turn_2014_ne.jpg")
 
