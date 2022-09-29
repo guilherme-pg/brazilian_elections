@@ -21,6 +21,7 @@ setwd("C:/Users/guima/Desktop/Data Science/Projetos/de_pe_na_eleicao/codes_and_p
 #write.csv(votos_presidente, "brazil_2018_president_2_turn.csv", row.names = FALSE)
 
 
+# TO IMPROVE: USE libraries individually
 library(dplyr)
 library(ggplot2)
 library(stringr)
@@ -64,6 +65,8 @@ votos_pr_2$PERCENT <- votos_pr_2$PROPORCAO *100
 votos_pr_2$PERCENT_FORMAT <- paste0(sprintf("%4.2f", votos_pr_2$PERCENT), "%")
 
 
+# TO IMPROVE: add var with abbreviation instead change names
+# MAPA_BR$SG_UF <- c()
 
 MAPA_BR$NM_ESTADO[ MAPA_BR$NM_ESTADO == "ACRE" ] <- "AC"
 MAPA_BR$NM_ESTADO[ MAPA_BR$NM_ESTADO == "ALAGOAS" ] <- "AL"
@@ -97,7 +100,8 @@ MAPA_BR$NM_ESTADO[ MAPA_BR$NM_ESTADO == "TOCANTINS" ] <- "TO"
 MAPA_BR <- rename(MAPA_BR, "SG_UF"="NM_ESTADO")
 
 
-
+# REORDER BY ALPHABETIC ORDER STATES NAMES
+MAPA_BR <- MAPA_BR[order(MAPA_BR$SG_UF),]
 
 
 # FILTER BY VALID VOTES
@@ -178,6 +182,14 @@ votos_validos_cart <- votos_validos_trans %>%
   cartogram_dorling(weight = 'TOTAL_VOTOS')
 
 
+# centroids for labels
+centroids <- st_centroid(votos_validos_cart$geometry)
+
+# latitude and longitude dataframe
+pontos <- data.frame(st_coordinates(centroids))
+
+# add column with states abbreviation
+pontos$SG_UF <- votos_validos_cart$SG_UF
 
 
 
@@ -186,18 +198,21 @@ votos_validos_cart <- votos_validos_trans %>%
 votos_validos_cart %>%
   ggplot() +
   geom_sf(aes(geometry=geometry, fill=PERCENT_0100), color=NA) +
+  geom_text(pontos, mapping=aes(x=X, y=Y, 
+                                label=SG_UF), 
+            color="grey28", size=2) +
   theme_void() +
   theme(
-    panel.border = element_rect(colour = "black", fill=NA),
-    plot.background = element_rect(fill="black", color=NA),
+    panel.border = element_rect(colour = "lightgoldenrodyellow", fill=NA),
+    plot.background = element_rect(fill="lightgoldenrodyellow", color=NA),
     plot.margin = margin(t=10, l=100, r=100, b=10),
-    plot.title = element_text(hjust=.5, colour = "white"),
-    plot.subtitle = element_text(hjust=.5, colour= "white"),
+    plot.title = element_text(hjust=.5, colour = "black"),
+    plot.subtitle = element_text(hjust=.5, colour= "black"),
     legend.position = "bottom",
     legend.title = element_blank(),
-    legend.text = element_text(colour = "white"),
+    legend.text = element_text(colour = "black"),
     legend.key.width = unit(1.7, "cm"),
-    legend.background = element_blank(),
+    legend.background = element_blank()
   ) +
   labs(
     title = "Votos Válidos no 2º Turno das Eleições para Presidente de 2018",
@@ -205,25 +220,16 @@ votos_validos_cart %>%
   scale_fill_gradientn(colors=coloresBlueRed,
                         limits=c(0, 100),
                         breaks=c(0, 25, 50, 75, 100),
-                        labels=c("100%", "Jair Bolsonaro", "50%", "Fernando Haddad", "100%")) +
+                        labels=c("100%", "Jair Bolsonaro", 
+                                 "50%", "Fernando Haddad", "100%"
+                                 )) +
   guides(fill = guide_colourbar(ticks = FALSE, 
                                   title.position = "bottom")
   )
 
 
+# save last plot
+ggsave("map_president_2_turn_2018_br_by_state_population_V3.jpg")
 
 
-# to SET STATES LABELS
-# REQUER: CENTROS DE CADA ESTADO
-# https://rpubs.com/frankhecker/434695
-#  + geom_text(votos_validos_cart, aes(geometry=geometry, label=SG_UF))
 
-#latitures e longitudes estados braisleiros
-# https://gist.github.com/ricardobeat/674646
-
-
-ggsave("map_president_2_turn_2018_br_by_state_population_V2.jpg")
-
-
-# require: votos em cidades estrangeiras.
-# UPDATES: set 'geobr'
