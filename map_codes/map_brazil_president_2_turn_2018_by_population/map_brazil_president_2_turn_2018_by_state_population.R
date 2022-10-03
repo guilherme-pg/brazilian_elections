@@ -1,4 +1,4 @@
-# BRAZIL 2018 presidential election 2 turn by state population
+# BRAZIL 2018 presidential election 2 turn by state votes
 
 
 
