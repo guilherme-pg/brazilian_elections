@@ -8,8 +8,19 @@ library(dplyr)
 library(ggplot2)
 library(sf)
 
+options(scipen=999)
 
+
+
+
+# general data
 votos_pe <- read.table("../../general_election_data/2022_election_pe_governador.csv", header=TRUE, sep=",")
+
+
+
+
+
+
 
 
 # LOADING MAP
@@ -33,6 +44,7 @@ MAPA$NM_MUNICIP <- gsub(" Da ", " da ", MAPA$NM_MUNICIP)
 MAPA$NM_MUNICIP <- gsub(" Do ", " do ", MAPA$NM_MUNICIP)
 MAPA$NM_MUNICIP <- gsub(" Dos ", " dos ", MAPA$NM_MUNICIP)
 MAPA$NM_MUNICIP <- gsub(" Das ", " das ", MAPA$NM_MUNICIP)
+MAPA$NM_MUNICIP <- gsub("São Caitano", "São Caetano", MAPA$NM_MUNICIP)
 
 df_pr_2$NM_MUNICIPIO <- stringr::str_to_title(df_pr_2$NM_MUNICIPIO)
 
@@ -42,6 +54,33 @@ df_pr_2$NM_MUNICIPIO <- gsub(" Da ", " da ", df_pr_2$NM_MUNICIPIO)
 df_pr_2$NM_MUNICIPIO <- gsub(" Do ", " do ", df_pr_2$NM_MUNICIPIO)
 df_pr_2$NM_MUNICIPIO <- gsub(" Dos ", " dos ", df_pr_2$NM_MUNICIPIO)
 df_pr_2$NM_MUNICIPIO <- gsub(" Das ", " das ", df_pr_2$NM_MUNICIPIO)
+df_pr_2$NM_MUNICIPIO <- gsub("São Caitano", "São Caetano", df_pr_2$NM_MUNICIPIO)
+
+
+
+
+
+# ZONE DIVISIONS: RMR, zona da mata, agreste, sertão e são francisco
+pe_mun_meso <- read.table("../../metadados/PE_municipios_mesoregioes.csv", sep=";", header=TRUE)
+
+
+# region dataset corrections
+pe_mun_meso$MESO_REGIAO <- gsub("Agrete", "Agreste", pe_mun_meso$MESO_REGIAO)
+pe_mun_meso$MESO_REGIAO <- gsub("São Francisco", "Sertão", pe_mun_meso$MESO_REGIAO)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -209,7 +248,7 @@ second_most_voted$GEOMETRY <- ordered_valid_votes$GEOMETRY[ match(second_most_vo
 
 # PLOT THE PROPORTIONS OF EACH MUNICIPALY BY CANDIDATE 
 
-# MAP PLOT THE MAIN STATE
+# MAP PLOT THE MAIN STATE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 main_pe <- grouped_valid_votes %>%
   filter(NM_MUNICIPIO != "Fernando de Noronha") %>%
   ggplot() +
@@ -265,12 +304,12 @@ cowplot::ggdraw() +
 
 
 # SAVE THE PLOT IMAGE
-ggsave("map_PE_2022_GOVERNADOR_1_turn_v2.jpg")
+#ggsave("map_PE_2022_GOVERNADOR_1_turn_v2.jpg")
 
 
 
 
-# average votes per candidate (percent)
+# average votes per candidate (percent) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 10 cities with best performance
 # performance in the most populous cities
 
@@ -288,19 +327,20 @@ populous_cities <- c("Recife",
                      "São Lourenço da Mata",
                      "Santa Cruz do Capibaribe",
                      "Abreu e Lima",
-                     "Ipojuca")
+                     "Ipojuca"
+                     )
 
 
 
 # AGREGAR CANDIDATOS NANICOS EM OUTROS
 minor_candidates <- c(
-  "Jones Manoel",
-  "Wellington Carneiro",
-  "João Arnaldo",
-  "Claudia Ribeiro",
-  "Jadilson Andrade",
-  "Ubiracy Olímpio"
-)
+            "Jones Manoel",
+            "Wellington Carneiro",
+            "João Arnaldo",
+            "Claudia Ribeiro",
+            "Jadilson Andrade",
+            "Ubiracy Olímpio"
+        )
 df_pr_2$NM_VOTAVEL[df_pr_2$NM_VOTAVEL %in% minor_candidates] = "Outros"
 
 
@@ -310,18 +350,18 @@ df_pr_2$NM_VOTAVEL[df_pr_2$NM_VOTAVEL %in% c("Voto Nulo", "Voto Branco")] = "Bra
 
 # reorder candidates names column
 df_pr_2$NM_VOTAVEL <- factor(df_pr_2$NM_VOTAVEL, levels = c(
-  "Outros",
-  "Brancos e Nulos",
-  "Anderson Ferreira",
-  "Miguel Coelho",
-  "Raquel Lyra",
+  "Marília Arraes",
   "Danilo Cabral",
-  "Marília Arraes"
+  "Raquel Lyra",
+  "Miguel Coelho",
+  "Anderson Ferreira",
+  "Brancos e Nulos",
+  "Outros"
 ))
 
 
 
-# bar plot
+# bar plot OF ALL CITIES
 df_pr_2 %>%
   ggplot() +
   geom_col(aes(x=forcats::fct_reorder(NM_MUNICIPIO, TOTAL_VOTOS, .desc=TRUE),
@@ -353,10 +393,87 @@ df_pr_2 %>%
 
 
 # SAVE THE PLOT IMAGE
-ggsave("cols_PE_2022_GOVERNADOR_1_turn_v1.jpg")
+#ggsave("cols_PE_2022_GOVERNADOR_1_turn_v1.jpg")
 
 
-# dividir em RMR, zona da mata, agreste e sertão
+
+
+
+
+
+
+# BY REGIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# x= NM_CANDIDATOS, y= QT_VOTOS, by=REGION
+
+df_pr_2$MESO_REGIAO <- pe_mun_meso$MESO_REGIAO[ match(df_pr_2$NM_MUNICIPIO, pe_mun_meso$NM_MUNICIPIO)  ]
+
+
+
+
+
+breaks2 = c(50000, 100000, 150000)
+valores2 = c("50 mil", "100 mil", "150 mil")
+
+breaks = c(100000, 200000, 300000, 400000, 500000)
+valores = c("100 mil", "200 mil", "300 mil", "400 mil", "500 mil")
+
+
+
+
+
+# PLOT BY REGION
+df_pr_2 %>%
+  ggplot() +
+  geom_col(aes(x=NM_VOTAVEL, 
+               y=QT_VOTOS, 
+               fill=NM_VOTAVEL)) +
+  theme(
+    plot.background = element_rect(fill="grey95", color=NA),
+    plot.margin = unit(c(.5,.5,.5,1), "cm"),
+    plot.title = element_text(hjust=-1),
+    plot.subtitle = element_text(hjust=.6, margin = margin(0, 0, 15, 0)),
+    panel.background = element_rect(fill="grey95", color=NA),
+    panel.grid = element_line(color= "grey55", linetype=2),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    axis.title = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text.x = element_blank(),
+    legend.background = element_blank(),
+    legend.title = element_blank()
+  )+
+  scale_fill_manual(values = coresVotos_3) +
+  scale_y_continuous(breaks=breaks, labels = valores) +
+  labs(title="Total de Votos no 1º Turno das Eleições para Governador de PE em 2022",
+       subtitle="Desempenho dos Candidatos por Região"
+  ) +
+  facet_wrap(~ MESO_REGIAO)
+
+
+
+
+
+#ggsave("grouped_cols_PE_2022_GOVERNADOR_1_turn_v1.jpg")
+
+
+
+
+
+
+# distribution: votes by city
+df_pr_2 %>%
+  ggplot() +
+  geom_point(aes(x=TOTAL_VOTOS, y=QT_VOTOS, color=NM_VOTAVEL)) +
+  scale_color_manual(values = coresVotos_3)
+
+
+
+
+
+
+
+
+
 
 
 
